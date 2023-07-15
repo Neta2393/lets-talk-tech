@@ -32,5 +32,9 @@
   },
   "devDependencies": {
     "dotenv": "^16.3.1"
-  }
+  },
+  "keywords": [
+    "tech",
+    "blog"
+  ]
 }
