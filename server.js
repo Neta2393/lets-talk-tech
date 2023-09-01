@@ -1,40 +1,41 @@
 const express = require('express');
-const routes = require('./controllers');
-const sequelize = require('./config/connection');
-const path = require('path');
-const exphbs = require('express-handlebars');
-const helpers = require('./utils/helpers');
 const session = require('express-session');
-const SequelizeStore = require('connect-session-sequelize')(session.Store);
-const hbs = exphbs.create({ helpers });
-
-
-const sess = {
-  secret: 'Donuts',
-  cookie: {},
-  resave: false,
-  saveUninitialized: true,
-  store: new SequelizeStore({
-    db: sequelize
-  })
-};
-
+const exphbs = require('express-handlebars');
+const sequelize = require('./config/connection'); // Sequelize configuration
+const passport = require('passport');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json());
+// Middleware
 app.use(express.urlencoded({ extended: true }));
-app.use(session(sess));
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-// turn on routes
-app.use(routes);
+// Session
+app.use(session({
+  secret: 'your_secret_here',
+  resave: false,
+  saveUninitialized: true
+}));
 
-app.engine('handlebars', hbs.engine);
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Handlebars setup
+app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
 app.set('view engine', 'handlebars');
 
-// turn on connection to db and server
+// Routes
+require('./controllers/authController')(app);
+require('./controllers/blogController')(app);
+require('./controllers/indexController')(app);
+
+// Sync Sequelize models and start the server
 sequelize.sync({ force: false }).then(() => {
-  app.listen(PORT, () => console.log('Now listening on http://localhost:3001/'));
+  app.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT}`);
+  });
 });
