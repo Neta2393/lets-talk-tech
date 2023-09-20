@@ -1,10 +1,10 @@
-// Get references to elements
+// Reference the form elements
 const loginForm = document.querySelector('#login-form');
 const usernameInput = document.querySelector('#username');
 const passwordInput = document.querySelector('#password');
 
 // Function to handle form submission
-async function loginFormHandler(event) {
+async function handleLoginFormSubmission(event) {
   event.preventDefault();
 
   const username = usernameInput.value.trim();
@@ -20,10 +20,10 @@ async function loginFormHandler(event) {
     if (response.ok) {
       document.location.replace('/');
     } else {
-      alert('Login failed. Please check your username and password.');
+      alert('Login failed. Please verify your username and password.');
     }
   }
 }
 
 // Event listener for form submission
-loginForm.addEventListener('submit', loginFormHandler);
+loginForm.addEventListener('submit', handleLoginFormSubmission);
