@@ -1,80 +1,93 @@
-const { Post, Comment, User } = require('../models');
+const db = require('../models');
 
-module.exports = (app) => {
-  // Create a new post
-  app.post('/post/create', async (req, res) => {
+const blogController = {
+  getAllBlogs: async (req, res) => {
     try {
-      if (req.isAuthenticated()) {
-        const userId = req.user.id;
-        await Post.create({
-          title: req.body.title,
-          content: req.body.content,
-          user_id: userId
-        });
-        res.redirect('/dashboard');
-      } else {
-        res.redirect('/login'); // Redirect to login if not authenticated
-      }
+      const blogs = await db.Blog.findAll({
+        order: [['createdAt', 'DESC']],
+        include: db.User, 
+      });
+
+      res.render('blogs', { blogs });
     } catch (error) {
       console.error(error);
-      res.status(500).send('An error occurred while creating the post.');
+      res.status(500).json({ error: 'Internal server error' });
     }
-  });
+  },
 
-  // Edit a post
-  app.get('/post/edit/:id', async (req, res) => {
+  getBlogById: async (req, res) => {
+    const { id } = req.params;
+
     try {
-      if (req.isAuthenticated()) {
-        const postId = req.params.id;
-        const userId = req.user.id;
-        const post = await Post.findOne({ where: { id: postId, user_id: userId } });
-        if (!post) {
-          return res.status(404).send('Post not found.');
-        }
-        res.render('edit-post', { isAuthenticated: true, post });
-      } else {
-        res.redirect('/login'); // Redirect to login if not authenticated
+      const blog = await db.Blog.findByPk(id, {
+        include: db.User, 
+      });
+
+      if (!blog) {
+        return res.status(404).json({ error: 'Blog not found' });
       }
+
+      res.render('blog', { blog });
     } catch (error) {
       console.error(error);
-      res.status(500).send('An error occurred while fetching the post.');
+      res.status(500).json({ error: 'Internal server error' });
     }
-  });
+  },
 
-  // Update a post
-  app.post('/post/update/:id', async (req, res) => {
+  createBlog: async (req, res) => {
+    const { title, content } = req.body;
+    const authorId = req.user.id; 
+
     try {
-      if (req.isAuthenticated()) {
-        const postId = req.params.id;
-        const userId = req.user.id;
-        await Post.update(
-          { title: req.body.title, content: req.body.content },
-          { where: { id: postId, user_id: userId } }
-        );
-        res.redirect('/dashboard');
-      } else {
-        res.redirect('/login'); // Redirect to login if not authenticated
-      }
+      const newBlog = await db.Blog.create({ title, content, authorId });
+
+      res.status(201).json(newBlog);
     } catch (error) {
       console.error(error);
-      res.status(500).send('An error occurred while updating the post.');
+      res.status(500).json({ error: 'Internal server error' });
     }
-  });
+  },
 
-  // Delete a post
-  app.get('/post/delete/:id', async (req, res) => {
+  updateBlog: async (req, res) => {
+    const { id } = req.params;
+    const { title, content } = req.body;
+
     try {
-      if (req.isAuthenticated()) {
-        const postId = req.params.id;
-        const userId = req.user.id;
-        await Post.destroy({ where: { id: postId, user_id: userId } });
-        res.redirect('/dashboard');
-      } else {
-        res.redirect('/login'); // Redirect to login if not authenticated
+      const blog = await db.Blog.findByPk(id);
+
+      if (!blog) {
+        return res.status(404).json({ error: 'Blog not found' });
       }
+
+      blog.title = title;
+      blog.content = content;
+      await blog.save();
+
+      res.status(200).json(blog);
     } catch (error) {
       console.error(error);
-      res.status(500).send('An error occurred while deleting the post.');
+      res.status(500).json({ error: 'Internal server error' });
     }
-  });
+  },
+
+  deleteBlog: async (req, res) => {
+    const { id } = req.params;
+
+    try {
+      const blog = await db.Blog.findByPk(id);
+
+      if (!blog) {
+        return res.status(404).json({ error: 'Blog not found' });
+      }
+
+      await blog.destroy();
+
+      res.status(204).send(); // No content after successful deletion
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
 };
+
+module.exports = blogController;

@@ -1,36 +1,47 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcrypt');
-const { User } = require('../models'); 
+const db = require('../models');
 
-// Configure the local strategy for Passport
 passport.use(
-  new LocalStrategy({ usernameField: 'username' }, async (username, password, done) => {
-    try {
-      const user = await User.findOne({ where: { username } });
+  new LocalStrategy(
+    {
+      usernameField: 'email',
+      passwordField: 'password',
+    },
+    async (email, password, done) => {
+      try {
+        // Find a user by their email in your database
+        const user = await db.User.findOne({ where: { email } });
 
-      // If user doesn't exist or password is incorrect
-      if (!user || !bcrypt.compareSync(password, user.password)) {
-        return done(null, false, { message: 'Incorrect credentials' });
+        // If user not found, return an error
+        if (!user) {
+          return done(null, false, { message: 'Incorrect email or password' });
+        }
+
+        // Compare the provided password with the hashed password in the database
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
+        if (!isPasswordValid) {
+          return done(null, false, { message: 'Incorrect email or password' });
+        }
+
+        // If user is found and password is correct, return the user
+        return done(null, user);
+      } catch (error) {
+        return done(error);
       }
-
-      // Authentication successful
-      return done(null, user);
-    } catch (error) {
-      return done(error);
     }
-  })
+  )
 );
 
-// Serialize user for session storage
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
-// Deserialize user from session storage
 passport.deserializeUser(async (id, done) => {
   try {
-    const user = await User.findByPk(id);
+    const user = await db.User.findByPk(id);
     done(null, user);
   } catch (error) {
     done(error);

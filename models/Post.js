@@ -1,10 +1,10 @@
 const { Model, DataTypes } = require('sequelize');
-const sequelize = require('../config/connection'); 
+const sequelize = require('../config/connection');
+
 class Post extends Model {}
 
 Post.init(
   {
-    // Define the columns of the Post model
     id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -19,7 +19,6 @@ Post.init(
       type: DataTypes.TEXT,
       allowNull: false
     },
-    // Foreign key for linking posts to users
     user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,

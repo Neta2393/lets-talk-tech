@@ -9,6 +9,7 @@ const SequelizeStore = require('connect-session-sequelize')(session.Store);
 const passport = require('passport'); // Import passport module
 const LocalStrategy = require('passport-local').Strategy; // Import Local Strategy for authentication
 const User = require('./models/User'); // Import your User model 
+const indexController = require('./controllers/indexController'); // Import indexController
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -70,7 +71,8 @@ passport.deserializeUser(async (id, done) => {
 });
 
 // Routes
-//app.use(routes);
+app.use('/', indexController); // Use indexController for the main page route
+app.use('/api', routes);
 
 // Set up Handlebars as the view engine
 app.engine('handlebars', exphbs.create({ helpers }).engine);
@@ -88,5 +90,3 @@ app.use((err, req, res, next) => {
 sequelize.sync({ force: false }).then(() => {
   app.listen(PORT, () => console.log(`Now listening on http://localhost:${PORT}/`));
 });
-
-//Server.js
