@@ -71,8 +71,8 @@ passport.deserializeUser(async (id, done) => {
 });
 
 // Routes
-app.use('/', indexController); // Use indexController for the main page route
-app.use('/api', routes);
+//app.use('/', indexController); 
+//app.use('/api', routes);
 
 // Set up Handlebars as the view engine
 app.engine('handlebars', exphbs.create({ helpers }).engine);
