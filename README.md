@@ -2,7 +2,7 @@
 ![License Badge](https://img.shields.io/badge/license-MIT-green)
 
 The following repo is a tech blog that was intended to allow users to create a post and interact with others via a tech blog. It was intended to be deployed at 
-https://letstalktechagain-e1bc8e68e828.herokuapp.com/. 
+https://letstalktechagain-e1bc8e68e828.herokuapp.com/. The code for this repo can be found at https://github.com/Neta2393/lets-talk-tech.
 
 ## Table of Contents:
 
