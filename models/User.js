@@ -10,7 +10,6 @@ class User extends Model {
 
 User.init(
   {
-    // Define the columns of the User model
     id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -29,12 +28,10 @@ User.init(
   },
   {
     hooks: {
-      // Hash the password before creating a new user
       beforeCreate: async (newUser) => {
         newUser.password = await bcrypt.hash(newUser.password, 10);
         return newUser;
       },
-      // Hash the password before updating a user
       beforeUpdate: async (updatedUser) => {
         updatedUser.password = await bcrypt.hash(updatedUser.password, 10);
         return updatedUser;
