@@ -82,7 +82,7 @@ app.set('view engine', 'handlebars');
 app.use((err, req, res, next) => {
   console.error(err.stack); // Log the error stack trace
 
-  // Respond with an appropriate error message or status code
+  
   res.status(500).send('Something went wrong');
 });
 
